@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>幸福頻率全解析</title>
+  <style>
+    :root {
+      --bg: #f5f0eb;
+      --card: #ffffff;
+      --primary: #4a6a75;
+      --accent: #d4a373;
+      --accent2: #bc8a5f;
+      --text: #333333;
+      --light: #fffdf9;
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
+      font-size: 18px;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── 封面 ── */
+    #screen-cover {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      background: linear-gradient(160deg, #4a6a75 0%, #2d4a55 100%);
+      text-align: center;
+    }
+
+    #screen-cover .emoji { font-size: 4rem; margin-bottom: 16px; }
+
+    #screen-cover h1 {
+      color: #fff;
+      font-size: 2.2rem;
+      line-height: 1.4;
+      margin-bottom: 12px;
+      letter-spacing: 2px;
+    }
+
+    #screen-cover p {
+      color: rgba(255,255,255,0.75);
+      font-size: 1.15rem;
+      margin-bottom: 40px;
+      line-height: 1.8;
+    }
+
+    .btn-start {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      padding: 18px 52px;
+      font-size: 1.3rem;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(212,163,115,0.5);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-start:active { transform: scale(0.97); }
+
+    .cover-dots {
+      margin-top: 40px;
+      color: rgba(255,255,255,0.5);
+      font-size: 0.9rem;
+    }
+
+    /* ── 測驗畫面 ── */
+    #screen-quiz { display: none; min-height: 100vh; }
+
+    .quiz-top {
+      background: var(--primary);
+      padding: 20px 24px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .progress-label {
+      color: rgba(255,255,255,0.7);
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 3px;
+      transition: width 0.4s ease;
+    }
+
+    .quiz-body { padding: 24px 20px 40px; }
+
+    .q-tag {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.95rem;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+    }
+
+    .q-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--primary);
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+
+    .q-desc {
+      font-size: 1.1rem;
+      color: #555;
+      line-height: 1.9;
+      margin-bottom: 24px;
+    }
+
+    /* 選項 */
+    .options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+
+    .opt-btn {
+      background: var(--card);
+      border: 2px solid #e8e0d8;
+      border-radius: var(--radius);
+      padding: 18px 18px;
+      font-size: 1.1rem;
+      font-family: inherit;
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+      line-height: 1.7;
+    }
+
+    .opt-btn:active { transform: scale(0.98); }
+
+    .opt-btn.selected {
+      border-color: var(--accent);
+      background: #fff8f0;
+    }
+
+    /* 解析卡 */
+    .result-card {
+      display: none;
+      background: var(--light);
+      border-left: 5px solid var(--accent);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 20px;
+      margin-bottom: 24px;
+      animation: slideIn 0.4s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-card.visible { display: block; }
+
+    .result-label {
+      font-size: 0.9rem;
+      color: var(--accent);
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .result-summary {
+      display: inline-block;
+      background: #eee;
+      color: #555;
+      font-size: 0.95rem;
+      font-weight: bold;
+      padding: 4px 12px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+    }
+
+    .result-content {
+      font-size: 1.05rem;
+      line-height: 1.95;
+      color: #444;
+      margin-bottom: 16px;
+    }
+
+    .mantra-box {
+      background: linear-gradient(135deg, #fff8f0, #fef3e8);
+      border: 1px solid #f0d9be;
+      border-radius: 12px;
+      padding: 16px 18px;
+      text-align: center;
+    }
+
+    .mantra-label {
+      font-size: 0.88rem;
+      color: var(--accent);
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .mantra-text {
+      font-size: 1.1rem;
+      color: var(--primary);
+      font-weight: bold;
+      font-style: italic;
+      line-height: 2.2;
+    }
+
+    /* 下一題按鈕 */
+    .btn-next {
+      display: none;
+      width: 100%;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      padding: 18px;
+      font-size: 1.15rem;
+      font-family: inherit;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-next.visible { display: block; }
+    .btn-next:active { transform: scale(0.98); }
+
+    /* ── 結果總覽畫面 ── */
+    #screen-result {
+      display: none;
+      min-height: 100vh;
+      padding: 0 0 60px;
+    }
+
+    .result-header {
+      background: linear-gradient(160deg, #4a6a75 0%, #2d4a55 100%);
+      padding: 40px 24px 32px;
+      text-align: center;
+      color: #fff;
+    }
+
+    .result-header .emoji { font-size: 2.8rem; margin-bottom: 12px; }
+    .result-header h2 { font-size: 1.7rem; margin-bottom: 8px; }
+    .result-header p { color: rgba(255,255,255,0.75); font-size: 1rem; }
+
+    .my-answers {
+      padding: 24px 20px 0;
+    }
+
+    .my-answers h3 {
+      color: var(--primary);
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+      letter-spacing: 1px;
+    }
+
+    .answer-chip {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 20px;
+      padding: 7px 18px;
+      font-size: 1rem;
+      margin: 4px 4px 4px 0;
+    }
+
+    .all-mantras {
+      padding: 24px 20px 0;
+    }
+
+    .all-mantras h3 {
+      color: var(--primary);
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+      letter-spacing: 1px;
+    }
+
+    /* 結果卡片 */
+    .result-full-card {
+      background: var(--light);
+      border-left: 4px solid var(--accent);
+      border-radius: 0 14px 14px 0;
+      padding: 18px 18px 14px;
+      margin-bottom: 14px;
+    }
+
+    .result-full-card .q-tag-sm {
+      font-size: 0.85rem;
+      color: var(--accent);
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .result-full-card .summary-text {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #555;
+      background: #eee;
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+
+    .result-full-card .mtext {
+      font-size: 1.1rem;
+      color: var(--primary);
+      font-style: italic;
+      font-weight: bold;
+      line-height: 2.2;
+      margin-bottom: 12px;
+    }
+
+    /* 展開按鈕 */
+    .btn-expand {
+      background: none;
+      border: 1.5px solid var(--accent);
+      color: var(--accent);
+      border-radius: 20px;
+      padding: 6px 18px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-expand:active, .btn-expand.open {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* 展開內容 */
+    .expand-content {
+      display: none;
+      margin-top: 12px;
+      font-size: 1rem;
+      line-height: 1.9;
+      color: #444;
+      border-top: 1px solid #f0e8df;
+      padding-top: 12px;
+    }
+    .expand-content.open { display: block; animation: slideIn 0.3s ease; }
+
+    .btn-restart {
+      display: block;
+      margin: 32px 20px 0;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      padding: 18px;
+      font-size: 1.15rem;
+      font-family: inherit;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.2s;
+    }
+    .btn-restart:active { background: var(--accent2); }
+
+    .btn-all-options {
+      display: block;
+      margin: 14px 20px 0;
+      background: none;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      border-radius: 50px;
+      padding: 16px;
+      font-size: 1.15rem;
+      font-family: inherit;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-all-options:active { background: var(--primary); color: #fff; }
+
+    /* 所有選項畫面 */
+    #screen-all {
+      display: none;
+      min-height: 100vh;
+      padding: 0 0 60px;
+    }
+
+    .all-header {
+      background: linear-gradient(160deg, #4a6a75 0%, #2d4a55 100%);
+      padding: 36px 24px 28px;
+      text-align: center;
+      color: #fff;
+    }
+    .all-header h2 { font-size: 1.5rem; margin-bottom: 6px; }
+    .all-header p { color: rgba(255,255,255,0.75); font-size: 0.95rem; }
+
+    .all-section { padding: 28px 20px 0; }
+
+    .all-section-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--primary);
+      border-bottom: 3px solid var(--accent);
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+    }
+
+    .all-option-card {
+      background: var(--card);
+      border-radius: 14px;
+      margin-bottom: 14px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .all-option-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 18px;
+      gap: 10px;
+    }
+
+    .all-option-header .opt-label {
+      font-size: 1rem;
+      font-weight: bold;
+      color: var(--primary);
+      flex: 1;
+      line-height: 1.6;
+    }
+
+    .all-option-header .opt-label.is-chosen {
+      color: var(--accent2);
+    }
+
+    .chosen-badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.75rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .toggle-icon {
+      color: var(--accent);
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .all-option-body {
+      display: none;
+      padding: 0 18px 16px;
+      border-top: 1px solid #f0e8df;
+    }
+    .all-option-body.open { display: block; animation: slideIn 0.3s ease; }
+
+    .all-opt-summary {
+      display: inline-block;
+      background: #eee;
+      color: #555;
+      font-size: 0.9rem;
+      font-weight: bold;
+      padding: 4px 12px;
+      border-radius: 4px;
+      margin: 12px 0 10px;
+    }
+
+    .all-opt-content {
+      font-size: 1rem;
+      line-height: 1.9;
+      color: #444;
+      margin-bottom: 14px;
+    }
+
+    .all-opt-mantra {
+      background: linear-gradient(135deg, #fff8f0, #fef3e8);
+      border: 1px solid #f0d9be;
+      border-radius: 10px;
+      padding: 12px 16px;
+      text-align: center;
+    }
+    .all-opt-mantra .mlabel {
+      font-size: 0.8rem;
+      color: var(--accent);
+      letter-spacing: 2px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+    .all-opt-mantra .mtext {
+      font-size: 1rem;
+      color: var(--primary);
+      font-style: italic;
+      font-weight: bold;
+      line-height: 2.1;
+    }
+
+    .btn-back {
+      display: block;
+      margin: 28px 20px 0;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      padding: 18px;
+      font-size: 1.15rem;
+      font-family: inherit;
+      cursor: pointer;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ 封面 ══ -->
+<div id="screen-cover">
+  <div class="emoji">✨</div>
+  <h1>幸福頻率<br>全解析</h1>
+  <p>三道直覺題，<br>幫你找到專屬的幸福頻率</p>
+  <button class="btn-start" onclick="startQuiz()">開始測驗</button>
+  <div class="cover-dots">共 3 題・約 3 分鐘</div>
+</div>
+
+<!-- ══ 測驗 ══ -->
+<div id="screen-quiz">
+  <div class="quiz-top">
+    <div class="progress-label" id="prog-label">第 1 題，共 3 題</div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:33%"></div></div>
+  </div>
+  <div class="quiz-body" id="quiz-body"></div>
+</div>
+
+<!-- ══ 結果 ══ -->
+<div id="screen-result">
+  <div class="result-header">
+    <div class="emoji">🎉</div>
+    <h2>你的幸福頻率出爐了！</h2>
+    <p>帶著這份領悟，繼續發光吧</p>
+  </div>
+  <div class="my-answers">
+    <h3>📋 你的選擇</h3>
+    <div id="answer-chips"></div>
+  </div>
+  <div class="all-mantras">
+    <h3>✦ 專屬幸福咒語</h3>
+    <div id="mantra-list"></div>
+  </div>
+  <button class="btn-restart" onclick="restart()">🔄 再測一次</button>
+  <button class="btn-all-options" onclick="showAllOptions()">📖 查看每題所有選項解析</button>
+</div>
+
+<!-- ══ 所有選項畫面 ══ -->
+<div id="screen-all">
+  <div class="all-header">
+    <h2>📖 所有選項解析</h2>
+    <p>點選任一選項即可展開完整說明</p>
+  </div>
+  <div id="all-content"></div>
+  <button class="btn-back" onclick="backToResult()">← 回到我的結果</button>
+</div>
+
+<script>
+const questions = [
+  {
+    tag: "第一題・幸福來源",
+    emoji: "🍰",
+    title: "甜點店長",
+    desc: "想像你今天是一間甜點店的店長，如果要把「幸福」具象化成一款甜點，你直覺會想研發哪一種？",
+    options: [
+      "A．每天限量五份、裝飾華麗的法式慕斯",
+      "B．剛出爐、香氣四溢且口感紮實的紅豆吐司",
+      "C．淋滿濃郁糖漿、甜到心坎裡的巧克力布朗尼",
+      "D．外表平實但內餡驚艷的酸甜檸檬塔",
+    ],
+    results: [
+      { summary: "幸福來自「社會地位與自我實現」",
+        content: "選擇精緻慕斯的你，內心深處渴望的是「卓越」。你對幸福的定義並非唾手可得的平凡，而是一場需要努力攀登後才能品嚐的勝果。在心理學上，這與自尊感高度掛鉤，你透過達成高品質的生活、獲得專業領域的認可來確認自己的價值。這種幸福感雖然強大，但也伴隨著不小的壓力，因為你很難容忍平庸。建議學習在追求頂峰的同時，也看見路邊盛開的小花，那會讓你的成就感更具韌性。",
+        mantra: ["我是獨一無二的傑作，", "存在本身即是價值。"] },
+      { summary: "幸福來自「安定感與關係連結」",
+        content: "選擇家常吐司的你，是一個情感細膩且務實的人。你的幸福核心在於「安全感」，對你而言，最奢侈的快樂往往藏在熟悉的事物中：家人的笑聲、穩定的收入、一段長久且信任的關係。你不需要外在華麗的點綴，就能從日常瑣事中提煉出甜味。這反映出你擁有極高的情緒穩定性，是周圍人的壓艙石。但有時過於追求穩定會讓你害怕改變，記得偶爾跳出舒適圈，體驗未知的驚喜。",
+        mantra: ["安穩中自有力量，", "我在平凡中活出非凡。"] },
+      { summary: "幸福來自「強烈感官與當下體驗」",
+        content: "選擇濃郁布朗尼的你，是個典型的「感官尋求者」。你認為幸福不該是抽象的哲學，而應該是舌尖上的悸動、壯麗的風景或熱烈的愛情。你極度看重當下的情緒強度，追求「活在當下」。這種特質讓你的生命充滿色彩與動能，你很會找樂子，也不吝於分享快樂。然而，當感官刺激消退後，你可能會面臨較大的空虛感。試著建立一些長效的心靈興趣，能讓你的幸福感不再隨情緒波動而起伏。",
+        mantra: ["認真地活在每一個當下，", "就是最美麗的風景。"] },
+      { summary: "幸福來自「層次感與靈魂成長」",
+        content: "選擇檸檬塔的你，擁有成熟且深邃的靈魂。你對幸福的理解是「辯證」的——沒有酸，就不懂得甜的可貴。你並不排斥挑戰或挫折，甚至認為那是人生必經的淬煉。你透過解決複雜問題、學習新技能或自我覺察來獲得深層的滿足感。這種「成長型心態」讓你極具適應力。你的幸福是安靜且持久的，因為它建立在智慧的基石之上。有時你可能過於理性，偶爾放空思考，單純地享受感官愉悅，會讓生命更平衡。",
+        mantra: ["每一次的酸楚，", "都是為了綻放更深邃的甜。"] },
+    ]
+  },
+  {
+    tag: "第二題・幸福阻礙",
+    emoji: "🚀",
+    title: "宇宙導航",
+    desc: "想像你正獨自駕駛太空船，準備前往一顆名為「永恆幸福」的星球。但在降落前，儀表板突然顯示有一個零件壞了，你直覺是哪裡出了問題？",
+    options: [
+      "A．推進器（動力系統）：飛得太慢，感覺永遠到不了。",
+      "B．導航系統（地圖）：訊號干擾，不知道現在在哪裡。",
+      "C．氧氣循環系統：雖然還能呼吸，但總覺得胸口悶悶的。",
+      "D．通訊設備：無法跟地球的基地台聯絡。",
+    ],
+    results: [
+      { summary: "阻礙：對速度的強迫性焦慮",
+        content: "推進器失靈代表你內心對「進度」有著極深的恐懼。你可能覺得同齡人已經領先，而你還在原地踏步，這種競爭壓力讓你忘記了每個人都有自己的花期。你過度關注未來的目標，導致當下的幸福感被吞噬。這種焦慮讓你就算達成目標也難以快樂，因為你馬上會尋找下一個更遠的標竿。請練習將焦點從「結果」轉移回「行為」本身，慢下來，不代表到不了目的地。",
+        mantra: ["慢，仍然是前進，", "而且一步一腳印很踏實。"] },
+      { summary: "阻礙：迷失自我的依附心態",
+        content: "導航斷訊反映了你對自我定位的迷惘。你可能太常參考大眾媒體、父母或同儕的幸福公式，導致你不再傾聽內心的指南針。當你不知道自己真正想要什麼時，即便身處天堂也會感到不安。你的幸福阻礙來自於過度依賴外界的評價。現在是你重新校準價值觀的時候，問問內心：撇開所有人的期待，什麼會讓我感到靈魂在震動？答案就在那裡。",
+        mantra: ["找回自己的心，", "重新定義方向，", "幸福就在轉角處。"] },
+      { summary: "阻礙：過度壓抑的情緒包袱",
+        content: "氧氣稀薄象徵著一種「窒息感」。你在生活中扮演了太多完美的角色：可靠的員工、體貼的伴侶、懂事的孩子，卻唯獨忘了做一個自由的人。你習慣壓抑真實感受來維持和諧，這讓你的幸福感被慢慢消磨殆盡。你的阻礙在於不敢表達需求。學習適度的「自我中心」並非自私，而是為了讓靈魂呼吸。請試著放下那些不屬於你的責任，把空間還給自己。",
+        mantra: ["學著溝通與表達，", "每個人都有其生命要學習成長的課題。"] },
+      { summary: "阻礙：防禦性的情感隔絕",
+        content: "通訊中斷代表你內心的孤獨感。這並非指你身邊沒人，而是你可能在心理上築起高牆，不輕易讓他人進入核心地帶。這種「獨立」有時是為了防禦受傷，但同時也阻隔了愛的滋潤。幸福感需要透過深度的情感連結來放大。你的阻礙來自於對脆弱的恐懼。試著向值得信賴的人露出裂縫，陽光才照得進來。人與人的共鳴，是世界上最溫暖的能量來源。",
+        mantra: ["唯有自己打開心牆，", "世界的光亮與溫暖才照得進來。"] },
+    ]
+  },
+  {
+    tag: "第三題・幸福時機",
+    emoji: "🌲",
+    title: "森林漫遊",
+    desc: "走在森林裡，你前方出現了一種藍色的東西，你希望它是什麼？",
+    options: [
+      "A．一群藍色的蝴蝶",
+      "B．一口清澈的深藍色古井",
+      "C．一朵發著藍光的神祕花朵",
+    ],
+    results: [
+      { summary: "時機：突如其來的命運贈禮",
+        content: "蝴蝶代表輕盈與驚喜。你是一個感知力極強的人，幸福最常在「不期而遇」中降臨。這意味著你擁有一顆赤子之心，能被微小的奇蹟感動。你的幸福時機來自於與世界的共時性——剛好趕上的公車、路邊可愛的小貓、或是突發奇想的點子。這種隨機性讓你的生活充滿期待感。只要保持開放的心態，不要讓刻板的生活模式僵化了感官，幸福就會像蝴蝶一樣，在你最放鬆的時候停在你的肩頭。",
+        mantra: ["世界總有美麗安排，", "請盡情張開雙手擁抱吧。"] },
+      { summary: "時機：靜謐深處的內在對話",
+        content: "古井象徵深度與平靜。你是一個內向覺察力極高的人，真正的幸福往往在喧囂停止、世界安靜下來時才會浮現。對你而言，那些獨自閱讀、冥想或是深思的深夜，才是生命中最珍貴的時刻。你在那口「心靈古井」中與真實的自我交談，汲取智慧之泉。這種幸福感極其穩定，不依賴外界，是你最強大的內核。不要害怕孤獨，那是你修煉幸福力量的最佳時機。",
+        mantra: ["萬象喧囂中，", "在寧靜自處下看見真實的自己，", "如此清寧自在。"] },
+      { summary: "時機：進入心流的創造瞬間",
+        content: "發光的花朵象徵靈感與熱情。你的幸福時機與「創造」高度相關。當你全神貫注地投入某項工作、藝術創作、或者是解決一個技術難題時，那種忘卻時間、物我兩忘的「心流狀態」就是你最高頻的幸福。你需要在產出、回饋與進步中感受到生命的律動。你不是在享受結果，是在享受那個不斷超越極限的過程。持續尋找能讓你眼裡閃光的事物，那就是你的幸福發源地。",
+        mantra: ["我就是光，", "我就是創造本身，", "我在發光中成就自己與他人。"] },
+    ]
+  }
+];
+
+let current = 0;
+let chosen = []; // { optIdx, label }
+
+function startQuiz() {
+  document.getElementById('screen-cover').style.display = 'none';
+  document.getElementById('screen-quiz').style.display = 'block';
+  renderQuestion(0);
+}
+
+function renderQuestion(idx) {
+  current = idx;
+  const q = questions[idx];
+  const total = questions.length;
+
+  document.getElementById('prog-label').textContent = `第 ${idx+1} 題，共 ${total} 題`;
+  document.getElementById('prog-fill').style.width = `${((idx+1)/total)*100}%`;
+
+  const body = document.getElementById('quiz-body');
+  body.innerHTML = '';
+
+  // 標籤 + 標題
+  const tag = document.createElement('div');
+  tag.className = 'q-tag';
+  tag.textContent = q.tag;
+  body.appendChild(tag);
+
+  const title = document.createElement('div');
+  title.className = 'q-title';
+  title.textContent = q.emoji + '  ' + q.title;
+  body.appendChild(title);
+
+  const desc = document.createElement('div');
+  desc.className = 'q-desc';
+  desc.textContent = q.desc;
+  body.appendChild(desc);
+
+  // 選項
+  const opts = document.createElement('div');
+  opts.className = 'options';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = opt;
+    btn.onclick = () => selectOption(i, btn);
+    opts.appendChild(btn);
+  });
+  body.appendChild(opts);
+
+  // 解析卡（隱藏）
+  const card = document.createElement('div');
+  card.className = 'result-card';
+  card.id = 'result-card';
+  body.appendChild(card);
+
+  // 下一題 / 完成按鈕
+  const nextBtn = document.createElement('button');
+  nextBtn.className = 'btn-next';
+  nextBtn.id = 'btn-next';
+  nextBtn.textContent = idx < total - 1 ? '下一題 →' : '查看完整結果 🎉';
+  nextBtn.onclick = () => idx < total - 1 ? renderQuestion(idx + 1) : showResult();
+  body.appendChild(nextBtn);
+}
+
+function selectOption(i, btn) {
+  // 清除所有選項樣式
+  document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+
+  // 記錄選擇
+  chosen[current] = { optIdx: i, label: questions[current].options[i] };
+
+  // 顯示解析
+  const q = questions[current];
+  const r = q.results[i];
+  const card = document.getElementById('result-card');
+
+  card.innerHTML = `
+    <div class="result-label">✦ 解析</div>
+    <div class="result-summary">${r.summary}</div>
+    <div class="result-content">${r.content}</div>
+    <div class="mantra-box">
+      <div class="mantra-label">✦ 幸福咒語 ✦</div>
+      <div class="mantra-text">${r.mantra.join('<br>')}</div>
+    </div>
+  `;
+  card.classList.add('visible');
+
+  // 顯示下一題按鈕
+  document.getElementById('btn-next').classList.add('visible');
+
+  // 滑到解析卡
+  setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+}
+
+function showResult() {
+  document.getElementById('screen-quiz').style.display = 'none';
+  const res = document.getElementById('screen-result');
+  res.style.display = 'block';
+
+  // 我的選擇 chips
+  const chips = document.getElementById('answer-chips');
+  chips.innerHTML = '';
+  chosen.forEach((c, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'answer-chip';
+    chip.textContent = `Q${i+1}：${c.label.slice(0,2)}`;
+    chips.appendChild(chip);
+  });
+
+  // 結果卡片（咒語 + 摘要 + 展開完整解析）
+  const list = document.getElementById('mantra-list');
+  list.innerHTML = '';
+  chosen.forEach((c, i) => {
+    const q = questions[i];
+    const r = q.results[c.optIdx];
+    const cardId = `expand-${i}`;
+
+    const div = document.createElement('div');
+    div.className = 'result-full-card';
+    div.innerHTML = `
+      <div class="q-tag-sm">${q.emoji} ${q.title}</div>
+      <div class="summary-text">${r.summary}</div>
+      <div class="mtext">${r.mantra.join('<br>')}</div>
+      <button class="btn-expand" id="btn-${cardId}" onclick="toggleExpand('${cardId}', this)">
+        查看完整解析 ↓
+      </button>
+      <div class="expand-content" id="${cardId}">
+        ${r.content}
+      </div>
+    `;
+    list.appendChild(div);
+  });
+
+  res.scrollIntoView({ behavior: 'smooth' });
+}
+
+function toggleExpand(id, btn) {
+  const el = document.getElementById(id);
+  const isOpen = el.classList.contains('open');
+  el.classList.toggle('open');
+  btn.classList.toggle('open');
+  btn.textContent = isOpen ? '查看完整解析 ↓' : '收起 ↑';
+  if (!isOpen) {
+    setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+  }
+}
+
+function restart() {
+  chosen = [];
+  current = 0;
+  document.getElementById('screen-result').style.display = 'none';
+  document.getElementById('screen-cover').style.display = 'flex';
+  window.scrollTo(0, 0);
+}
+
+function showAllOptions() {
+  document.getElementById('screen-result').style.display = 'none';
+  const screen = document.getElementById('screen-all');
+  screen.style.display = 'block';
+
+  const container = document.getElementById('all-content');
+  container.innerHTML = '';
+
+  questions.forEach((q, qi) => {
+    const section = document.createElement('div');
+    section.className = 'all-section';
+
+    const title = document.createElement('div');
+    title.className = 'all-section-title';
+    title.textContent = `${q.emoji} ${q.title}`;
+    section.appendChild(title);
+
+    q.options.forEach((opt, oi) => {
+      const r = q.results[oi];
+      const isChosen = chosen[qi] && chosen[qi].optIdx === oi;
+      const cardId = `all-${qi}-${oi}`;
+
+      const card = document.createElement('div');
+      card.className = 'all-option-card';
+      card.innerHTML = `
+        <div class="all-option-header">
+          <div class="opt-label ${isChosen ? 'is-chosen' : ''}">${opt}</div>
+          ${isChosen ? '<span class="chosen-badge">✓ 我的選擇</span>' : ''}
+        </div>
+        <div class="all-option-body open" id="${cardId}">
+          <div class="all-opt-summary">${r.summary}</div>
+          <div class="all-opt-content">${r.content}</div>
+          <div class="all-opt-mantra">
+            <div class="mlabel">✦ 幸福咒語 ✦</div>
+            <div class="mtext">${r.mantra.join('<br>')}</div>
+          </div>
+        </div>
+      `;
+      section.appendChild(card);
+    });
+
+    container.appendChild(section);
+  });
+
+  window.scrollTo(0, 0);
+}
+
+function toggleAllOption(id, header) {
+  const body = document.getElementById(id);
+  const icon = header.querySelector('.toggle-icon');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open');
+  icon.textContent = isOpen ? '＋' : '－';
+  if (!isOpen) {
+    setTimeout(() => body.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+  }
+}
+
+function backToResult() {
+  document.getElementById('screen-all').style.display = 'none';
+  document.getElementById('screen-result').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>
